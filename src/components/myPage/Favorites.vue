@@ -1,8 +1,7 @@
 <script setup>
 import { useFavoriteStore } from "@/stores/favoriteStore";
-import { ref, onMounted, computed, onActivated } from "vue";
+import { ref, onMounted, computed, onActivated, reactive } from "vue";
 import { getStoreList } from "@/services/storeService";
-import { getFavorite } from "@/services/favoriteService";
 import { useRouter, useRoute } from "vue-router";
 import { watch } from "vue";
 import { getFavoriteList } from "@/services/favoriteService";
@@ -79,10 +78,8 @@ console.log("라우터로 받은 storeId:", storeId);
             :key="store.id"
           >
             <img
-              :src="`/imgs/${store.image}`"
-              alt="가게 이미지"
-              class="store-image"
-            />
+            :src="`/pic/store-profile/${state.store.storeId}/${state.storeInfo.imagePath}`"
+            alt="가게 이미지" class="store-image" />
             <div class="store-info">
               <h3 class="store-title">{{ store.name }}</h3>
               <p class="store-sub">
@@ -106,7 +103,7 @@ console.log("라우터로 받은 storeId:", storeId);
           </div>
         </div>
       </div>
-
+      <!-- 찜한 가게가 없을 경우 -->
       <div v-else>
         <div class="container">
           <div class="text-no">찜한 가게가 없습니다</div>
