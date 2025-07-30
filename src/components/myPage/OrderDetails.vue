@@ -86,14 +86,23 @@ const filteredOrders = computed(() =>
 
 // 재주문
 const cartStore = useCartStore();
-const addMenus = [];
 
 const reorder = async (menus) => {
+  const cartItems = cartStore.state;
+  const firstStoreId = menus.storeId;
+  console.log("cartItems: ", cartItems)
+  console.log("menus.orderGetList: ", menus.storeId )
+  if (cartItems.items.length > 0 ) {
+    showModal("다른 가게의 메뉴가 담겨있습니다");
+    return;
+  }
+
+  const addMenus = [];
+
   for (let i = 0; i < menus.orderGetList.length; i++) {
     const item = menus.orderGetList[i];
     try {
       const res = await addItem(item.menuId);
-      // console.log("resASDA: ", res.data.resultData);
       const cartId = res.data.resultData;
       addMenus.push({
         id: cartId,
@@ -106,15 +115,6 @@ const reorder = async (menus) => {
     } catch (e) {
       console.error("addItem 실패:", e);
     }
-  }
-
-  console.log("menus: ", menus.orderGetList);
-  const cartItems = cartStore.state.items;
-  if (cartItems.length > 0 && cartItems[0].id !== addMenus[0].id) {
-    showModal(
-      '다른 가게의 메뉴가 담겨있습니다'
-    )
-    return;
   }
 
   cartStore.addMenus(addMenus);

@@ -17,7 +17,7 @@ const router = useRouter();
 const account = useAccountStore();
 
 const state = reactive({
-  items: cartStore.state.items,
+  items: [],
   reviews: [],
   reviewNum: 0,
   favorites: [],
@@ -91,7 +91,7 @@ const load = async () => {
   if (res === undefined || res.status !== 200 || res.data.resultStatus !== 200)
     return;
 
-  state.items = res.data.resultData || [];
+  state.items = cartStore.state.items || [];
 };
 
 const remove = async (cartId) => {
