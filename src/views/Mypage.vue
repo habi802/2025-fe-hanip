@@ -20,16 +20,13 @@ const myAccount = [
   "고객센터",
 ];
 
-onMounted ( () => {
-  getUser()
+onMounted (async () => {
+  await getUser()
     .then(res => {
       if (res.status === 200) {
-        console.log("user data:", res.data); // 확인용
         const data = res.data.resultData;
         user.name = data.name;
-        // user.orders = data.orders;
-        // user.cupon = data.cupon;
-        // user.point = data.point;
+        user.orders = data.orders;
       } else {
         console.warn("사용자 정보를 가져올 수 없음", res);
       }
@@ -48,7 +45,7 @@ onMounted ( () => {
         <div class="userLeft">
           <img class="userImg" src="/src/imgs/userImg.png" />
           <div class="user">
-            <div>{{ user.name }}님 &nbsp; 반가워요!</div>
+            <div>{{ user.name }} 님 &nbsp; 반가워요!</div>
             <div class="smalluser">
               <span class="ip">한입</span>
               <span class="rank">등급</span>
@@ -59,7 +56,7 @@ onMounted ( () => {
         <div class="userright">
           <div class="right">
             <div>총 주문 수</div>
-            <div class="num">{{ user.orders }}</div>
+            <div class="num">{{ user.orders.toLocaleString() }}</div>
           </div>
           <div class="right">
             <div>쿠폰</div>
