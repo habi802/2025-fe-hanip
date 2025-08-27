@@ -1,5 +1,4 @@
 <script setup>
-import { getOwnerOrder } from "@/services/orderService";
 import { activeStore, getOwnerStore } from "@/services/storeService";
 import { useOrderStore } from "@/stores/orderStore";
 import { ref, onMounted, onUnmounted, provide, watch, computed, reactive,} from "vue";
@@ -201,33 +200,123 @@ onUnmounted(() => {
 <template>
   <div class="d-flex box" style="min-height: 100vh">
     <!-- 사이드바 -->
-    <div class="p-4" style="width: 300px; flex-shrink: 0">
-      <div class="text-center mb-5">
+    <div class="p-4" style="width: 350px; flex-shrink: 0">
+      <div class="text-center mb-3">
         <img
-          :style="{
-            width: '180px',
-          }"
+          style="
+            width: 180px;
+            margin-bottom: 15px;
+          "
           src="/src/imgs/haniplogo3.png"
           alt="logo"
         />
+
+        <!-- 가게 이름 및 사장 프로필  -->
+        <div class="align-items-center">
+          <div class="store-name">
+            {{ state.form.name }}
+          </div>
+            <div class="dropdown position-relative">
+              <div
+                data-bs-toggle="dropdown"
+                role="button"
+                style="cursor: pointer; margin-bottom: 20px;"
+              >
+              <img
+                  src="/src/imgs/owner/owner_profile.png"
+                  style="cursor: pointer; " width="30px"
+                  role="button"
+                  class="pe-1"
+                />
+                <span class="me-2"
+                  ><span style="font-weight: bold; letter-spacing: 1px">{{
+                    state.form.ownerName
+                  }}</span>
+                  사장님</span
+                >
+              </div>
+
+              <div class="dropdown-menu dropdown-menu-end">
+                <div class="title px-3 py-2">{{ state.form.ownerName }}</div>
+                <div class="dropdown-divider"></div>
+                <div
+                  @click="storeModify"
+                  style="cursor: pointer"
+                  class="dropdown-item"
+                >
+                  가게수정
+                </div>
+                <div
+                  @click="logoutOwner"
+                  style="cursor: pointer"
+                  class="dropdown-item"
+                >
+                  로그아웃
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-center align-items-center" style="gap: 16px">
+<!-- 드랍다운 -->
+<div class="relative d-flex gap-3">
+  <div class="dropdown position-relative">
+    <img
+      src="/src/imgs/owner/icon_bell.svg"
+      class="icon"
+      data-bs-toggle="dropdown"
+      style="cursor: pointer"
+      role="button"
+      @click="openDropdown"
+    />
+    <div class="red-dot" v-show="redDot"></div>
+
+    <div class="dropdown-menu dropdown-menu-start">
+      <div class="title px-3 py-2">알림</div>
+      <div class="dropdown-divider"></div>
+      <ul class="noti-item-list list-unstyled m-0 px-3">
+        <li v-if="notifications.length === 0">알림이 없습니다.</li>
+        <li
+          v-for="order in notifications"
+          :key="order.id"
+          @click.stop="removeNotification(order.id)"
+          style="cursor: pointer"
+        >
+          {{ order.message }}
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <img src="/src/imgs/owner/icon_chat.svg" class="icon" />
+  <img src="/src/imgs/owner/icon_config.svg" class="icon" />
+</div>
+</div>
+
+        <!-- 검색창 -->
+        <!-- <li class="nav-item nav-channel-search-wrapper d-none d-sm-block">
+            <form
+              id=""
+              class="position-relative"
+            >
+              <img src="/src/imgs/search_icon.png" class="search-icon-inside" />
+              <input
+                type="search"
+                class="form-control ps-5 search"
+                autocomplete="off"
+                placeholder="검색"
+              />
+            </form>
+          </li> -->
         <!-- 시각 -->
-        <div
+        <!-- <div
           class="text-black-50 mb-4"
           style="font-weight: 600; font-size: 20px"
         >
           {{ currentTime }}
-        </div>
+        </div> -->
         <!-- 토글버튼 -->
-        <div
-          class="toggle-container d-flex justify-content-center"
-          style="height: 40px"
-        >
-          <span v-if="route.path !== '/owner' || isOpen">영업 상태</span>
-          <label v-if="route.path !== '/owner' || isOpen" class="switch">
-            <input type="checkbox" :checked="isOpen" @change="toggleBusiness" />
-            <span class="slider"></span>
-          </label>
-        </div>
+         
       </div>
       <ul class="nav nav-pills flex-column gap-4">
         <li class="nav-item" v-for="menu in menus" :key="menu.text">
@@ -262,62 +351,7 @@ onUnmounted(() => {
       <!-- 검색 + 영업 버튼 -->
 
       <div class="d-flex align-items-center paddingSearch">
-        <div class="d-flex align-items-center" style="gap: 16px">
-          <li class="nav-item nav-channel-search-wrapper d-none d-sm-block">
-            <form
-              id=""
-              class="position-relative"
-              :style="{
-                pointerEvents: isOpen ? 'auto' : 'none',
-                cursor: isOpen ? 'auto' : 'not-allowed',
-                opacity: isOpen ? 1 : 0.3,
-              }"
-            >
-              <img src="/src/imgs/search_icon.png" class="search-icon-inside" />
-              <input
-                type="search"
-                class="form-control ps-5 search"
-                autocomplete="off"
-                placeholder="검색"
-              />
-            </form>
-          </li>
-
-          <!-- 드랍다운 -->
-          <div class="relative d-flex gap-3">
-            <div class="dropdown position-relative">
-              <img
-                src="/src/imgs/owner/icon_bell.svg"
-                class="icon"
-                data-bs-toggle="dropdown"
-                style="cursor: pointer"
-                role="button"
-                @click="openDropdown"
-              />
-              <div class="red-dot" v-show="redDot"></div>
-
-              <div class="dropdown-menu dropdown-menu-start">
-                <div class="title px-3 py-2">알림</div>
-                <div class="dropdown-divider"></div>
-                <ul class="noti-item-list list-unstyled m-0 px-3">
-                  <li v-if="notifications.length === 0">알림이 없습니다.</li>
-                  <li
-                    v-for="order in notifications"
-                    :key="order.id"
-                    @click.stop="removeNotification(order.id)"
-                    style="cursor: pointer"
-                  >
-                    {{ order.message }}
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <img src="/src/imgs/owner/icon_chat.svg" class="icon" />
-            <img src="/src/imgs/owner/icon_present.svg" class="icon" />
-            <img src="/src/imgs/owner/icon_config.svg" class="icon" />
-          </div>
-        </div>
+        
         <!-- 구분선 -->
         <div class="d-flex gap-2" style="padding-left: 15px">
           <div class="vertical-line mx-4"></div>
@@ -375,6 +409,12 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss" scoped>
+.store-name {
+  font-size: 35px;
+  margin-bottom: 12px;
+  font-weight: 200;
+}
+
 .box {
   font-family: "Pretendard", sans-serif;
 }
@@ -415,7 +455,7 @@ onUnmounted(() => {
 
 .search {
   border-radius: 10px;
-  width: 800px;
+  width: 300px;
   height: 50px;
 }
 
